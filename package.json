@@ -1,0 +1,42 @@
+{
+  "name": "controlly",
+  "version": "1.0.0",
+  "description": "Middleware para Express que facilita la gestión de transacciones con Sequelize y el manejo centralizado de errores, incluyendo notificaciones por correo en producción.",
+  "main": "dist/controlly.cjs.js",
+  "module": "dist/controlly.esm.js",
+  "exports": {
+    "import": "./dist/controlly.esm.js",
+    "require": "./dist/controlly.cjs.js"
+  },
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rollup -c",
+    "prepare": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CrisGuzmanS/controlly.git"
+  },
+  "keywords": [
+    "controller",
+    "transactions",
+    "exception",
+    "email",
+    "exception",
+    "exceptions"
+  ],
+  "author": "Cristian Emanuelle Guzmán Suárez",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/CrisGuzmanS/controlly/issues"
+  },
+  "homepage": "https://github.com/CrisGuzmanS/controlly#readme",
+  "dependencies": {
+    "meily": "^1.0.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.6",
+    "@rollup/plugin-node-resolve": "^16.0.1"
+  }
+}
