@@ -32,8 +32,8 @@ export const controller = (controller) => {
             }
 
             // Muestra los mensajes en consola
-            console.log(error.message);
-            console.log(error.stack);
+            console.error(error.message);
+            console.error(error.stack);
 
             // Obtiene los entornos en donde si se podría mandar correo, por defecto son entornos de producción
             let environments = [];
@@ -47,7 +47,6 @@ export const controller = (controller) => {
 
             // Solo para entornos de producción envía un correo
             if (environments.includes(process.env.APP_ENVIRONMENT)) {
-
                 try {
                     Mail.from(process.env.MAIL_FROM)
                         .to(process.env.MAIL_TO)
@@ -59,18 +58,26 @@ export const controller = (controller) => {
                             </div>
                             <div style="margin-bottom: 20px">
                                 <b>ENDPOINT:</b><br>
-                                ${req.url}
+                                ${req.protocol + '://' + req.get('host') + req.originalUrl}
                             </div>
                             <div style="margin-bottom: 20px">
                                 <b>BODY:</b><br>
                                 <pre style="background: #f6f6f6; padding: 10px; border: 1px solid #ccc;">${JSON.stringify(req.body, null, 2)}</pre>
                             </div>
                             <div style="margin-bottom: 20px">
-                                <b>FECHA:</b><br>
-                                ${new Date().toLocaleString()}
+                                <b>DATE:</b><br>
+                                ${new Date().toLocaleString('en-CA', {
+                                    year: 'numeric',
+                                    month: '2-digit',
+                                    day: '2-digit',
+                                    hour: 'numeric',
+                                    minute: '2-digit',
+                                    second: '2-digit',
+                                    hour12: true
+                                }).replace(',', '')}
                             </div>
                             <div style="margin-bottom: 20px">
-                                <b>ENTORNO:</b><br>
+                                <b>ENVIRONMENT:</b><br>
                                 ${process.env.APP_ENVIRONMENT}
                             </div>
                         `)

@@ -1,45 +1,49 @@
 # controlly
 
-Middleware para Express que facilita la gestión de transacciones con Sequelize y el manejo centralizado de errores, incluyendo notificaciones por correo en producción.
+Controlly is a simple Express.js middleware that wraps your controller functions with error handling and sends error notification emails...
 
-## Descripción
-controlly ofrece dos middlewares para Express.js que te ayudarán a:
+![Controlly example](./assets/example.png)
 
-Manejar transacciones en bases de datos Sequelize automáticamente, haciendo commit o rollback según el resultado de la respuesta HTTP.
+## ✨ Features
+✅ Automatically rolls back open transactions on error
+✅ Logs error messages and stack traces
+✅ Sends error notification emails in production environments
+✅ Customizable environments for email notifications
 
-Ejecutar controladores envueltos en un middleware que captura errores, realiza rollback de la transacción si es necesario, y envía notificaciones de error por correo en entornos de producción.
-
-## Instalación
+## 🚀 Installation
 
 ```bash
 npm install controlly
 ```
 
-## Uso basico
+## 📦 Usage example
 
-1. Configurar en el archivo `.env` las variables de entorno:
-
-| Variable                      | Descripción                                                                                               |
-| ----------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `APP_ENVIRONMENT`             | Define el entorno actual (`production`, `development`, `local`).                                          |
-| `MAIL_HOST`                   | Servidor SMTP (por ejemplo: `smtp.gmail.com`).                                                            |
-| `MAIL_PORT`                   | Puerto SMTP (generalmente `465` o `587`).                                                                 |
-| `MAIL_PASSWORD`               | Contraseña o token de la cuenta emisora.                                                                  |
-| `MAIL_FROM`                   | Dirección de correo remitente para enviar notificaciones.                                                 |
-| `MAIL_TO`                     | Dirección de correo destino para recibir las notificaciones de error.                                     |
-| `MAIL_EXCEPTION_ENVIRONMENTS` | Lista separada por comas con los entornos donde se enviarán correos (por defecto: `prod,prd,production`). |
-
-
-1. Se debe instalar el middleware de transacciones con Sequelize:
-```js
-import { transaction } from 'controlly';
-// ...
-app.use(transaction(yourSequelizeInstance));
-```
-
-1. Se debe envolver el controlador con el middleware de control de errores:
-```js
+```javascript
+import express from 'express';
 import { controller } from 'controlly';
-//  ...
-router.get('/your-endpoint', controller(yourController));
+import { moviesController } from './controllers/movies.controller.js';
+
+const app = express();
+
+app.get('/api/users', controller(async (req, res) => {
+    // Your controller logic here
+    res.json({ users: [] });
+}));
+
+app.get('/api/movies', controller(moviesController));
 ```
+
+## Environment variables
+
+1. You must set the following environment variables in your `.env` file:
+
+| Variable                      | Description                                                                                               |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `APP_ENVIRONMENT`             | The environment name where your app is running (e.g., development, production). Error emails are sent only if this matches allowed environments |
+| `MAIL_HOST`                   | The SMTP server hostname used to send emails (e.g., smtp.gmail.com). |
+| `MAIL_PORT`                   | The SMTP server port (commonly 587 for TLS or 465 for SSL). |
+| `MAIL_PASSWORD`               | The password or SMTP token to authenticate with the mail server. |
+| `MAIL_SECURE`                 | (Optional) Set to true if the SMTP server requires TLS or SSL. Defaults to false. |
+| `MAIL_FROM`                   | The sender email address that will appear in error notification emails. |
+| `MAIL_TO`                     | The recipient email address where error notifications will be sent. |
+| `MAIL_EXCEPTION_ENVIRONMENTS` | (Optional) Comma-separated list of environments where error emails should be sent. Defaults to prod,prd,production if not defined. |
