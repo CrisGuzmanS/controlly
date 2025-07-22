@@ -6,7 +6,7 @@ export default {
   input: './index.js',
   output: [
     { file: 'dist/controlly.cjs', format: 'cjs', exports: 'named' },
-    { file: 'dist/controlly.esm.js', format: 'esm' }
+    { file: 'dist/controlly.mjs', format: 'esm' }
   ],
   plugins: [nodeResolve(), commonjs(), json()]
 };
