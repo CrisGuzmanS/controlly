@@ -26,8 +26,13 @@ export const controller = (controller) => {
         try {
             // Ejecuta el controlador que se pasó como argumento y lo envuelve en una transacción
             await controller(req, response, next);
+
+            if (req?.transaction?.finished === undefined) {
+                await req.transaction.commit();
+            }
+
         } catch (error) {
-            if (req?.transaction?.finished === false) {
+            if (req?.transaction?.finished === undefined) {
                 await req.transaction.rollback();
             }
 
