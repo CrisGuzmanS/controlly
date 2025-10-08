@@ -21,10 +21,10 @@ export function transaction(sequelize) {
         response.on('finish', async () => {
 
             // Si la respuesta es exitosa, se hace el commit, si no se deshacen los cambios de la base de datos
-            if (response.statusCode >= 200 && response.statusCode < 400 && request?.transaction?.finished == undefined) {
+            if (response.statusCode >= 200 && response.statusCode < 400 && request?.transaction && request?.transaction?.finished == undefined) {
                 await request.transaction.commit();
             } else {
-                if (!request.transaction.finished == undefined) {
+                if (request.transaction && !request.transaction.finished == undefined) {
                     await request.transaction.rollback();
                 }
             }
