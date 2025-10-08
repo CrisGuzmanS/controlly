@@ -33,7 +33,7 @@ export function transaction(sequelize) {
 
         // Si la respuesta se cierra, se deshacen los cambios
         response.on('close', async () => {
-            if (!response.finished && !request.transaction.finished == undefined) {
+            if (!response.finished && request.transaction && !request.transaction.finished == undefined) {
                 await request.transaction.rollback();
             }
         });
