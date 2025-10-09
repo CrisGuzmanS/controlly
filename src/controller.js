@@ -24,21 +24,11 @@ export const controller = (controller) => {
     return async (req, response, next) => {
 
         try {
-            // Ejecuta el controlador que se pasó como argumento y lo envuelve en una transacción
-            await controller(req, response, next);
-
-            if (req?.transaction && req?.transaction?.finished === undefined) {
-                await req.transaction.commit();
-            }
-
+            return await controller(req, response, next);
         } catch (error) {
             if (req?.transaction && req?.transaction?.finished === undefined) {
                 await req.transaction.rollback();
             }
-
-            // Muestra los mensajes en consola
-            console.error(error.message);
-            console.error(error.stack);
 
             // Obtiene los entornos en donde si se podría mandar correo, por defecto son entornos de producción
             let environments = [];
@@ -89,18 +79,14 @@ export const controller = (controller) => {
                         .subject('Error en la plataforma')
                         .send()
                 } catch (mailError) {
-                    console.log(mailError);
+                    console.error(mailError);
                 }
             }
 
-            // Se retorna una respuesta al cliente (frontend)
-            response.status(500).json({
-                message: error.message,
-                replyText: error.message,
-                replyCode: 500
-            });
+            console.error(error.stack);
 
-            return response
+            // 🔹 Dejar que Express maneje el error
+            return next(error);
         }
     };
 };

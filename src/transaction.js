@@ -17,27 +17,44 @@ export function transaction(sequelize) {
     }
 
     return async (request, response, next) => {
-        request.transaction = await sequelize.transaction();
-        response.on('finish', async () => {
 
-            // Si la respuesta es exitosa, se hace el commit, si no se deshacen los cambios de la base de datos
-            if (response.statusCode >= 200 && response.statusCode < 400 && request?.transaction && request?.transaction?.finished == undefined) {
-                await request.transaction.commit();
-            } else {
-                if (request.transaction && !request.transaction.finished == undefined) {
-                    await request.transaction.rollback();
-                }
+        // Se inicia la transacción
+        request.transaction = await sequelize.transaction();
+
+        const originalSend = response.send;
+        response.send = async function (body) {
+
+            if (response.statusCode == 500) {
+                await request.transaction.rollback();
+                return originalSend.call(this, body);
             }
 
-        });
+            if (!request.transaction) {
+                return originalSend.call(this, body);
+            }
 
-        // Si la respuesta se cierra, se deshacen los cambios
+            if (request.transaction.finished) {
+                return originalSend.call(this, body);
+            }
+
+            await request.transaction.commit();
+
+            return originalSend.call(this, body);
+        }
+
         response.on('close', async () => {
-            if (!response.finished && request.transaction && !request.transaction.finished == undefined) {
+            if (request.transaction && request.transaction?.finished == undefined) {
                 await request.transaction.rollback();
             }
         });
-        next();
+
+        response.on('error', async () => {
+            if (request.transaction && request.transaction?.finished == undefined) {
+                await request.transaction.rollback();
+            }
+        });
+
+        return next();
     }
 
 }
